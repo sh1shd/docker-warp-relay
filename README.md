@@ -2,7 +2,7 @@
 
 A Cloudflare WARP relay running in a Docker container
 
-## Использование
+## Usage (Docker Compose)
 
 ```yaml
 services:
