@@ -35,11 +35,11 @@ func main() {
 
 	upstream, err := net.ResolveUDPAddr("udp4", net.JoinHostPort(dstHost, strconv.Itoa(dstPort)))
 	if err != nil {
-		log.Fatalf("resolve upstream %q: %v", dstHost, err)
+		log.Fatalf("failed resolve upstream %q (%v)", dstHost, err)
 	}
 	listener, err := net.ListenUDP("udp4", &net.UDPAddr{IP: net.IPv4zero, Port: srcPort})
 	if err != nil {
-		log.Fatalf("listen on UDP port %d: %v", srcPort, err)
+		log.Fatalf("failed listen on UDP port %d (%v)", srcPort, err)
 	}
 
 	r := relay.New(listener, upstream)
@@ -66,17 +66,17 @@ func main() {
 			if ctx.Err() != nil || errors.Is(err, net.ErrClosed) {
 				return
 			}
-			log.Printf("receive client packet: %v", err)
+			log.Printf("failed receive client packet (%v)", err)
 			continue
 		}
 
 		session, err := r.GetSession(client)
 		if err != nil {
-			log.Printf("open upstream session for %s: %v", client, err)
+			log.Printf("failed open upstream session for %s (%v)", client, err)
 			continue
 		}
 		if err := session.Send(buf[:n]); err != nil {
-			log.Printf("send packet for %s: %v", client, err)
+			log.Printf("failed send packet for %s (%v)", client, err)
 			r.RemoveSession(client.String(), session)
 		}
 	}
