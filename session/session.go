@@ -1,4 +1,4 @@
-package client_service
+package session
 
 import (
 	"net"
@@ -8,7 +8,6 @@ import (
 
 const idleTimeout = 2 * time.Minute
 
-// Session tracks a client's upstream UDP connection.
 type Session struct {
 	conn   *net.UDPConn
 	client *net.UDPAddr

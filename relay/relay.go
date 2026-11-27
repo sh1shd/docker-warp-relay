@@ -1,4 +1,4 @@
-package relay_service
+package relay
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sh1shd/docker-warp-relay/client_service"
+	"github.com/sh1shd/docker-warp-relay/session"
 	"github.com/sh1shd/docker-warp-relay/utils"
 )
 
@@ -87,5 +87,5 @@ func (r *Relay) CloseAll() {
 	for _, session := range sessions {
 		session.Close()
 	}
-	_ = utils.CloneUDPAddr // keep utility package dependency explicit for relay utilities
+	_ = utils.CloneUDPAddr
 }

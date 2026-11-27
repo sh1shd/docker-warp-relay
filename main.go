@@ -12,11 +12,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/sh1shd/docker-warp-relay/relay_service"
+	"github.com/sh1shd/docker-warp-relay/relay"
 	"github.com/sh1shd/docker-warp-relay/utils"
 )
 
 func main() {
+	log.SetFlags(0)
 	log.SetPrefix("[docker-warp-relay] ")
 
 	srcPort, err := utils.EnvPort("SRC_PORT", "4500")
@@ -47,7 +48,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	log.Printf("listening on udp/%d and relaying to %s", srcPort, upstream)
+	log.Printf("udp/%d => %s is set up", srcPort, upstream)
 	buf := make([]byte, 65535)
 	for {
 		_ = listener.SetReadDeadline(time.Now().Add(time.Second))
