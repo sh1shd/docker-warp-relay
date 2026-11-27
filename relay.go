@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -84,7 +85,7 @@ func main() {
 	}
 	defer r.closeAll()
 
-	ctx, stop := signal.NotifyContext(nil, os.Interrupt, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	log.Printf("listening on udp/%d and relaying to %s", srcPort, upstream)
