@@ -15,18 +15,18 @@ type Relay struct {
 	listener *net.UDPConn
 	upstream *net.UDPAddr
 	mu       sync.Mutex
-	sessions map[string]*client_service.Session
+	sessions map[string]*session.Session
 }
 
 func New(listener *net.UDPConn, upstream *net.UDPAddr) *Relay {
 	return &Relay{
 		listener: listener,
 		upstream: upstream,
-		sessions: make(map[string]*client_service.Session),
+		sessions: make(map[string]*session.Session),
 	}
 }
 
-func (r *Relay) GetSession(client *net.UDPAddr) (*client_service.Session, error) {
+func (r *Relay) GetSession(client *net.UDPAddr) (*session.Session, error) {
 	key := client.String()
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -38,13 +38,13 @@ func (r *Relay) GetSession(client *net.UDPAddr) (*client_service.Session, error)
 	if err != nil {
 		return nil, err
 	}
-	session := client_service.New(conn, client)
+	session := session.New(conn, client)
 	r.sessions[key] = session
 	go r.readUpstream(key, session)
 	return session, nil
 }
 
-func (r *Relay) readUpstream(key string, session *client_service.Session) {
+func (r *Relay) readUpstream(key string, session *session.Session) {
 	defer session.Close()
 	buf := make([]byte, 65535)
 	for {
@@ -66,7 +66,7 @@ func (r *Relay) readUpstream(key string, session *client_service.Session) {
 	}
 }
 
-func (r *Relay) RemoveSession(key string, session *client_service.Session) {
+func (r *Relay) RemoveSession(key string, session *session.Session) {
 	r.mu.Lock()
 	if r.sessions[key] == session {
 		delete(r.sessions, key)
@@ -78,7 +78,7 @@ func (r *Relay) RemoveSession(key string, session *client_service.Session) {
 func (r *Relay) CloseAll() {
 	_ = r.listener.Close()
 	r.mu.Lock()
-	sessions := make([]*client_service.Session, 0, len(r.sessions))
+	sessions := make([]*session.Session, 0, len(r.sessions))
 	for key, session := range r.sessions {
 		delete(r.sessions, key)
 		sessions = append(sessions, session)

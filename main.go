@@ -42,7 +42,7 @@ func main() {
 		log.Fatalf("listen on UDP port %d: %v", srcPort, err)
 	}
 
-	r := relay_service.New(listener, upstream)
+	r := relay.New(listener, upstream)
 	defer r.CloseAll()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
