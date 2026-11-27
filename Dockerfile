@@ -1,7 +1,8 @@
 FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS builder
 
 WORKDIR /src
-COPY *.go ./
+COPY go.mod ./
+COPY . .
 
 ARG TARGETOS
 ARG TARGETARCH

@@ -11,20 +11,23 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/sh1shd/docker-warp-relay/relay_service"
+	"github.com/sh1shd/docker-warp-relay/utils"
 )
 
 func main() {
 	log.SetPrefix("[docker-warp-relay] ")
 
-	srcPort, err := envPort("SRC_PORT", "4500")
+	srcPort, err := utils.EnvPort("SRC_PORT", "4500")
 	if err != nil {
 		log.Fatal(err)
 	}
-	dstPort, err := envPort("DST_PORT", "4500")
+	dstPort, err := utils.EnvPort("DST_PORT", "4500")
 	if err != nil {
 		log.Fatal(err)
 	}
-	dstHost := strings.TrimSpace(env("DST_HOST", "engage.cloudflareclient.com"))
+	dstHost := strings.TrimSpace(utils.Env("DST_HOST", "engage.cloudflareclient.com"))
 	if dstHost == "" {
 		log.Fatal("DST_HOST must not be empty")
 	}
@@ -38,12 +41,8 @@ func main() {
 		log.Fatalf("listen on UDP port %d: %v", srcPort, err)
 	}
 
-	r := &relay{
-		listener: listener,
-		upstream: upstream,
-		sessions: make(map[string]*clientSession),
-	}
-	defer r.closeAll()
+	r := relay_service.New(listener, upstream)
+	defer r.CloseAll()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -70,14 +69,14 @@ func main() {
 			continue
 		}
 
-		session, err := r.getSession(client)
+		session, err := r.GetSession(client)
 		if err != nil {
 			log.Printf("open upstream session for %s: %v", client, err)
 			continue
 		}
-		if err := session.send(buf[:n]); err != nil {
+		if err := session.Send(buf[:n]); err != nil {
 			log.Printf("send packet for %s: %v", client, err)
-			r.removeSession(client.String(), session)
+			r.RemoveSession(client.String(), session)
 		}
 	}
 }
