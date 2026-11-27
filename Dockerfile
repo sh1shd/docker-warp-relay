@@ -1,11 +1,11 @@
 FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS builder
 
 WORKDIR /src
-COPY relay.go .
+COPY *.go ./
 
 ARG TARGETOS
 ARG TARGETARCH
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -ldflags="-s -w" -o /out/udp-relay ./relay.go
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -ldflags="-s -w" -o /out/udp-relay .
 
 FROM debian:12-slim
 
