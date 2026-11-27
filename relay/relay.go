@@ -55,13 +55,13 @@ func (r *Relay) readUpstream(key string, session *session.Session) {
 				return
 			}
 			if !errors.Is(err, net.ErrClosed) {
-				log.Printf("read upstream response for %s: %v", session.ClientAddr(), err)
+				log.Printf("failed read upstream response for %s (%v)", session.ClientAddr(), err)
 			}
 			return
 		}
 		_ = session.Conn().SetReadDeadline(time.Now().Add(2 * time.Minute))
 		if _, err := r.listener.WriteToUDP(buf[:n], session.ClientAddr()); err != nil {
-			log.Printf("send response to %s: %v", session.ClientAddr(), err)
+			log.Printf("failed send response to %s (%v)", session.ClientAddr(), err)
 		}
 	}
 }
